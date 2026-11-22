@@ -1,16 +1,17 @@
 package com.epharmacy.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
  * Représente un client de la pharmacie.
  * <p>
- * Un client peut avoir un crédit (solde à régler) et est identifié
- * par ses coordonnées personnelles.
+ * Un client peut avoir un crédit (solde à régler), un plafond de crédit et un statut (ACTIF/INACTIF).
+ * Les montants monétaires utilisent {@link BigDecimal} avec accesseurs compatibles {@code double}.
  * </p>
  *
  * @author E-PHARMACIE
- * @version 1.0
+ * @version 3.0
  */
 public class Client {
 
@@ -36,25 +37,25 @@ public class Client {
     private LocalDate dateInscription;
 
     /** Montant du crédit en cours (en DH). */
-    private double credit;
+    private BigDecimal credit = BigDecimal.ZERO;
+
+    /** Plafond maximal de crédit autorisé (en DH). Par défaut 1000.00 DH. */
+    private BigDecimal plafondCredit = new BigDecimal("1000.00");
+
+    /** Statut du client (ACTIF, INACTIF). */
+    private String statut = "ACTIF";
 
     /**
      * Constructeur sans arguments.
      */
     public Client() {
+        this.credit = BigDecimal.ZERO;
+        this.plafondCredit = new BigDecimal("1000.00");
+        this.statut = "ACTIF";
     }
 
     /**
-     * Constructeur avec tous les arguments.
-     *
-     * @param idClient         identifiant unique
-     * @param nom              nom de famille
-     * @param prenom           prénom
-     * @param telephone        numéro de téléphone
-     * @param email            adresse e-mail
-     * @param adresse          adresse postale
-     * @param dateInscription  date d'inscription
-     * @param credit           montant du crédit (DH)
+     * Constructeur avec arguments de base.
      */
     public Client(int idClient, String nom, String prenom, String telephone,
                   String email, String adresse, LocalDate dateInscription, double credit) {
@@ -65,125 +66,134 @@ public class Client {
         this.email = email;
         this.adresse = adresse;
         this.dateInscription = dateInscription;
-        this.credit = credit;
+        this.credit = BigDecimal.valueOf(credit);
+        this.plafondCredit = new BigDecimal("1000.00");
+        this.statut = "ACTIF";
     }
 
     /**
-     * @return l'identifiant unique du client
+     * Constructeur complet version 3.0 avec BigDecimal.
      */
+    public Client(int idClient, String nom, String prenom, String telephone,
+                  String email, String adresse, LocalDate dateInscription,
+                  BigDecimal credit, BigDecimal plafondCredit, String statut) {
+        this.idClient = idClient;
+        this.nom = nom;
+        this.prenom = prenom;
+        this.telephone = telephone;
+        this.email = email;
+        this.adresse = adresse;
+        this.dateInscription = dateInscription;
+        this.credit = credit != null ? credit : BigDecimal.ZERO;
+        this.plafondCredit = plafondCredit != null ? plafondCredit : new BigDecimal("1000.00");
+        this.statut = statut != null ? statut : "ACTIF";
+    }
+
     public int getIdClient() {
         return idClient;
     }
 
-    /**
-     * @param idClient l'identifiant unique à définir
-     */
     public void setIdClient(int idClient) {
         this.idClient = idClient;
     }
 
-    /**
-     * @return le nom de famille du client
-     */
     public String getNom() {
         return nom;
     }
 
-    /**
-     * @param nom le nom de famille à définir
-     */
     public void setNom(String nom) {
         this.nom = nom;
     }
 
-    /**
-     * @return le prénom du client
-     */
     public String getPrenom() {
         return prenom;
     }
 
-    /**
-     * @param prenom le prénom à définir
-     */
     public void setPrenom(String prenom) {
         this.prenom = prenom;
     }
 
-    /**
-     * @return le numéro de téléphone
-     */
     public String getTelephone() {
         return telephone;
     }
 
-    /**
-     * @param telephone le numéro de téléphone à définir
-     */
     public void setTelephone(String telephone) {
         this.telephone = telephone;
     }
 
-    /**
-     * @return l'adresse e-mail
-     */
     public String getEmail() {
         return email;
     }
 
-    /**
-     * @param email l'adresse e-mail à définir
-     */
     public void setEmail(String email) {
         this.email = email;
     }
 
-    /**
-     * @return l'adresse postale
-     */
     public String getAdresse() {
         return adresse;
     }
 
-    /**
-     * @param adresse l'adresse postale à définir
-     */
     public void setAdresse(String adresse) {
         this.adresse = adresse;
     }
 
-    /**
-     * @return la date d'inscription
-     */
     public LocalDate getDateInscription() {
         return dateInscription;
     }
 
-    /**
-     * @param dateInscription la date d'inscription à définir
-     */
     public void setDateInscription(LocalDate dateInscription) {
         this.dateInscription = dateInscription;
     }
 
     /**
-     * @return le montant du crédit (DH)
+     * @return le montant du crédit (DH) en double pour compatibilité
      */
     public double getCredit() {
-        return credit;
+        return credit != null ? credit.doubleValue() : 0.0;
     }
 
-    /**
-     * @param credit le montant du crédit à définir (DH)
-     */
     public void setCredit(double credit) {
-        this.credit = credit;
+        this.credit = BigDecimal.valueOf(credit);
+    }
+
+    public BigDecimal getCreditBD() {
+        return credit != null ? credit : BigDecimal.ZERO;
+    }
+
+    public void setCredit(BigDecimal credit) {
+        this.credit = credit != null ? credit : BigDecimal.ZERO;
+    }
+
+    public BigDecimal getPlafondCredit() {
+        return plafondCredit != null ? plafondCredit : new BigDecimal("1000.00");
+    }
+
+    public double getPlafondCreditDouble() {
+        return plafondCredit != null ? plafondCredit.doubleValue() : 1000.00;
+    }
+
+    public void setPlafondCredit(BigDecimal plafondCredit) {
+        this.plafondCredit = plafondCredit != null ? plafondCredit : new BigDecimal("1000.00");
+    }
+
+    public void setPlafondCredit(double plafondCredit) {
+        this.plafondCredit = BigDecimal.valueOf(plafondCredit);
+    }
+
+    public String getStatut() {
+        return statut != null ? statut : "ACTIF";
+    }
+
+    public void setStatut(String statut) {
+        this.statut = statut;
+    }
+
+    public boolean isActif() {
+        return "ACTIF".equalsIgnoreCase(statut);
     }
 
     /**
      * Retourne le nom complet du client (prénom + nom).
-     *
-     * @return le nom complet
      */
     public String getNomComplet() {
         return (prenom != null ? prenom : "") + " " + (nom != null ? nom : "");
@@ -200,6 +210,8 @@ public class Client {
                 ", adresse='" + adresse + '\'' +
                 ", dateInscription=" + dateInscription +
                 ", credit=" + credit +
+                ", plafondCredit=" + plafondCredit +
+                ", statut='" + statut + '\'' +
                 '}';
     }
 }

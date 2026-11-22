@@ -31,7 +31,7 @@ public class DashboardPanel extends JPanel {
     }
 
     private void initUI() {
-        setLayout(new MigLayout("wrap, insets 20 25 20 25, gap 15", "[grow]", "[]15[]15[]10[grow]10[]10[grow]"));
+        setLayout(new MigLayout("fill, insets 20, hidemode 3", "[grow, fill, 0::]", "[]15[]15[]10[]10[]10[grow, fill]"));
 
         JLabel title = new JLabel("Tableau de Bord");
         title.setFont(title.getFont().deriveFont(Font.BOLD, 24f));

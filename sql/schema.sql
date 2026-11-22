@@ -1,5 +1,5 @@
 -- ============================================================
--- E-PHARMACIE — Schéma complet de la base de données
+-- E-PHARMACIE — Schéma complet de la base de données (v3.0)
 -- MySQL 8+  |  Charset : utf8mb4  |  Collation : utf8mb4_unicode_ci
 -- ============================================================
 
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS utilisateur (
 
     INDEX idx_utilisateur_role   (role),
     INDEX idx_utilisateur_statut (statut)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 2. CLIENT — Clients de la pharmacie
@@ -39,10 +39,13 @@ CREATE TABLE IF NOT EXISTS client (
     adresse             TEXT,
     date_inscription    DATE            NOT NULL DEFAULT (CURRENT_DATE),
     credit              DECIMAL(10,2)   NOT NULL DEFAULT 0.00,
+    plafond_credit      DECIMAL(10,2)   NOT NULL DEFAULT 1000.00,
+    statut              ENUM('ACTIF', 'INACTIF') NOT NULL DEFAULT 'ACTIF',
 
     INDEX idx_client_nom     (nom, prenom),
-    INDEX idx_client_tel     (telephone)
-) ENGINE=InnoDB;
+    INDEX idx_client_tel     (telephone),
+    INDEX idx_client_statut  (statut)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 3. FOURNISSEUR — Fournisseurs de médicaments
@@ -61,7 +64,7 @@ CREATE TABLE IF NOT EXISTS fournisseur (
 
     INDEX idx_fournisseur_ville  (ville),
     INDEX idx_fournisseur_statut (statut)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 4. MEDICAMENT — Catalogue de médicaments
@@ -82,8 +85,9 @@ CREATE TABLE IF NOT EXISTS medicament (
     categorie               VARCHAR(100),
     prix_vente_public       DECIMAL(10,2)   NOT NULL,
     seuil_minimal           INT             NOT NULL DEFAULT 10,
-    statut                  ENUM('COMMERCIALISE', 'NON_COMMERCIALISE', 'EN_RUPTURE') NOT NULL DEFAULT 'COMMERCIALISE',
+    statut                  ENUM('COMMERCIALISE', 'NON_COMMERCIALISE', 'EN_RUPTURE', 'INACTIF') NOT NULL DEFAULT 'COMMERCIALISE',
     quantite_disponible     INT             NOT NULL DEFAULT 0,
+    ordonnance_requise      BOOLEAN         NOT NULL DEFAULT FALSE,
 
     CONSTRAINT chk_prix_vente          CHECK (prix_vente_public >= 0),
     CONSTRAINT chk_seuil_minimal       CHECK (seuil_minimal >= 0),
@@ -96,7 +100,7 @@ CREATE TABLE IF NOT EXISTS medicament (
     INDEX idx_med_categorie     (categorie),
     INDEX idx_med_statut        (statut),
     INDEX idx_med_laboratoire   (laboratoire)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 5. APPROVISIONNEMENT — Commandes fournisseurs
@@ -107,7 +111,7 @@ CREATE TABLE IF NOT EXISTS approvisionnement (
     id_utilisateur          INT             NOT NULL,
     date_approvisionnement  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     montant_total           DECIMAL(12,2)   NOT NULL DEFAULT 0.00,
-    statut                  ENUM('EN_COURS', 'VALIDEE', 'ANNULEE') NOT NULL DEFAULT 'EN_COURS',
+    statut                  ENUM('En attente', 'Partiellement reçu', 'Reçu', 'Annulé') NOT NULL DEFAULT 'En attente',
 
     CONSTRAINT fk_appro_fournisseur
         FOREIGN KEY (id_fournisseur) REFERENCES fournisseur(id_fournisseur)
@@ -118,7 +122,7 @@ CREATE TABLE IF NOT EXISTS approvisionnement (
 
     INDEX idx_appro_date   (date_approvisionnement),
     INDEX idx_appro_statut (statut)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 6. LIGNE_APPROVISIONNEMENT — Détail de chaque commande
@@ -144,7 +148,7 @@ CREATE TABLE IF NOT EXISTS ligne_approvisionnement (
         ON UPDATE CASCADE ON DELETE RESTRICT,
 
     INDEX idx_la_medicament (id_medicament)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 7. LOT — Lots de médicaments avec traçabilité
@@ -166,7 +170,7 @@ CREATE TABLE IF NOT EXISTS lot (
 
     INDEX idx_lot_expiration (date_expiration),
     INDEX idx_lot_numero     (numero_lot)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 8. VENTE — Ventes effectuées au comptoir
@@ -190,7 +194,7 @@ CREATE TABLE IF NOT EXISTS vente (
     INDEX idx_vente_date    (date_vente),
     INDEX idx_vente_statut  (statut),
     INDEX idx_vente_client  (id_client)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 9. LIGNE_VENTE — Détail de chaque vente
@@ -215,4 +219,69 @@ CREATE TABLE IF NOT EXISTS ligne_vente (
         ON UPDATE CASCADE ON DELETE RESTRICT,
 
     INDEX idx_lv_lot (id_lot)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- 10. PARAMETRES_SOCIETE — Paramètres de la pharmacie
+-- ============================================================
+CREATE TABLE IF NOT EXISTS parametres_societe (
+    id INT PRIMARY KEY DEFAULT 1,
+    nom_pharmacie VARCHAR(100) NOT NULL,
+    ice VARCHAR(20),
+    identifiant_fiscal VARCHAR(20),
+    rc VARCHAR(30),
+    patente VARCHAR(30),
+    telephone VARCHAR(20),
+    email VARCHAR(100),
+    adresse TEXT,
+    ville VARCHAR(50),
+    message_ticket VARCHAR(255),
+    theme_app ENUM('CLAIR', 'SOMBRE', 'SYSTEME') DEFAULT 'CLAIR'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO parametres_societe
+    (id, nom_pharmacie, ice, identifiant_fiscal, rc, patente, telephone, email, adresse, ville, message_ticket, theme_app)
+VALUES
+    (1, 'Pharmacie E-Pharmacie', '001524896000045', '45896321', 'RC 14520', '45218963', '05 24 43 00 00', 'contact@epharmacie.ma', 'Avenue Mohammed V, Guéliz', 'Marrakech', 'Merci de votre visite. Prompt rétablissement !', 'CLAIR');
+
+-- ============================================================
+-- 11. PAIEMENT_CLIENT — Règlements de crédit client
+-- ============================================================
+CREATE TABLE IF NOT EXISTS paiement_client (
+    id_paiement     INT             AUTO_INCREMENT PRIMARY KEY,
+    id_client       INT             NOT NULL,
+    id_utilisateur  INT             NOT NULL,
+    montant         DECIMAL(10,2)   NOT NULL,
+    mode_paiement   ENUM('ESPECES', 'CARTE', 'VIREMENT') NOT NULL DEFAULT 'ESPECES',
+    date_paiement   DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_paiement_client
+        FOREIGN KEY (id_client) REFERENCES client(id_client)
+        ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT fk_paiement_utilisateur
+        FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur)
+        ON UPDATE CASCADE ON DELETE RESTRICT,
+
+    CONSTRAINT chk_paiement_montant CHECK (montant > 0),
+
+    INDEX idx_paiement_client (id_client),
+    INDEX idx_paiement_date   (date_paiement)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- 12. AUDIT_LOG — Journal d'audit des opérations sensibles
+-- ============================================================
+CREATE TABLE IF NOT EXISTS audit_log (
+    id_audit        INT             AUTO_INCREMENT PRIMARY KEY,
+    id_utilisateur  INT,
+    action          VARCHAR(50)     NOT NULL,
+    entite          VARCHAR(50)     NOT NULL,
+    id_entite       INT,
+    details         TEXT,
+    date_action     DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_audit_utilisateur (id_utilisateur),
+    INDEX idx_audit_action      (action),
+    INDEX idx_audit_entite      (entite),
+    INDEX idx_audit_date        (date_action)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

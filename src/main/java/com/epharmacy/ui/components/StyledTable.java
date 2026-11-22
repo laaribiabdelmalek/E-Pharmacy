@@ -46,7 +46,7 @@ public class StyledTable extends JPanel {
      * @param columns les noms des colonnes du tableau
      */
     public StyledTable(String[] columns) {
-        setLayout(new MigLayout("insets 0, fill", "[grow]", "[grow]"));
+        setLayout(new MigLayout("insets 0, fill", "[grow, fill, 0::]", "[grow, fill]"));
         setOpaque(false);
 
         // Modèle non éditable
@@ -64,7 +64,7 @@ public class StyledTable extends JPanel {
         scrollPane.setBorder(BorderFactory.createLineBorder(getBorderColor()));
         scrollPane.getViewport().setBackground(getTableBackground());
 
-        add(scrollPane, "grow");
+        add(scrollPane, "grow, push");
 
         ThemeManager.addThemeChangeListener(this::onThemeChanged);
     }

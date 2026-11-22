@@ -89,10 +89,6 @@ public final class ValidationUtils {
         }
         // Supprimer les espaces et tirets pour la validation
         String cleaned = phone.trim().replaceAll("[\\s-]", "");
-        // Ré-insérer le + si présent au début
-        if (phone.trim().startsWith("+")) {
-            cleaned = "+" + cleaned;
-        }
         return PHONE_PATTERN.matcher(cleaned).matches();
     }
 
@@ -139,7 +135,20 @@ public final class ValidationUtils {
      * @return le prix formaté (ex: "125.50 DH")
      */
     public static String formatPrice(double price) {
-        return String.format("%.2f DH", price);
+        return String.format(java.util.Locale.US, "%.2f DH", price);
+    }
+
+    /**
+     * Formate un montant BigDecimal en Dirhams marocains.
+     *
+     * @param price le montant à formater
+     * @return le prix formaté
+     */
+    public static String formatPrice(java.math.BigDecimal price) {
+        if (price == null) {
+            return "0.00 DH";
+        }
+        return String.format(java.util.Locale.US, "%.2f DH", price.doubleValue());
     }
 
     /**

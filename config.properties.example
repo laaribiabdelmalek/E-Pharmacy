@@ -1,0 +1,9 @@
+# ============================================================
+# E-PHARMACIE — Configuration de la base de données
+# Copiez ce fichier en 'config.properties' et adaptez les valeurs.
+# NE COMMITEZ PAS config.properties dans Git.
+# ============================================================
+
+db.url=jdbc:mysql://localhost:3306/e_pharmacie?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+db.user=root
+db.password=epharmacy123

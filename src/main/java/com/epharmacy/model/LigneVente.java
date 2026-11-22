@@ -1,5 +1,8 @@
 package com.epharmacy.model;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 /**
  * Représente une ligne d'une vente (détail d'un médicament vendu).
  * <p>
@@ -8,179 +11,145 @@ package com.epharmacy.model;
  * </p>
  *
  * @author E-PHARMACIE
- * @version 1.0
+ * @version 3.0
  */
 public class LigneVente {
 
-    /** Identifiant unique de la ligne de vente. */
     private int idLigneVente;
-
-    /** Identifiant de la vente parente. */
     private int idVente;
-
-    /** Identifiant du lot utilisé pour cette vente. */
     private int idLot;
-
-    /** Quantité vendue. */
     private int quantite;
-
-    /** Prix unitaire de vente (DH). */
-    private double prixUnitaireVente;
-
-    /** Sous-total de la ligne (quantité × prix unitaire, en DH). */
-    private double sousTotal;
+    private BigDecimal prixUnitaireVente = BigDecimal.ZERO;
+    private BigDecimal sousTotal = BigDecimal.ZERO;
 
     // --- Champs transitoires pour l'affichage ---
-
-    /** Nom du médicament (transitoire, utilisé pour l'affichage). */
     private String nomMedicament;
-
-    /** Numéro de lot (transitoire, utilisé pour l'affichage). */
     private String numeroLot;
+    private String dosage;
 
-    /**
-     * Constructeur sans arguments.
-     */
     public LigneVente() {
+        this.prixUnitaireVente = BigDecimal.ZERO;
+        this.sousTotal = BigDecimal.ZERO;
     }
 
-    /**
-     * Constructeur avec tous les arguments persistants.
-     *
-     * @param idLigneVente     identifiant unique de la ligne
-     * @param idVente          identifiant de la vente parente
-     * @param idLot            identifiant du lot
-     * @param quantite         quantité vendue
-     * @param prixUnitaireVente prix unitaire de vente (DH)
-     * @param sousTotal        sous-total (DH)
-     */
     public LigneVente(int idLigneVente, int idVente, int idLot, int quantite,
                       double prixUnitaireVente, double sousTotal) {
         this.idLigneVente = idLigneVente;
         this.idVente = idVente;
         this.idLot = idLot;
         this.quantite = quantite;
-        this.prixUnitaireVente = prixUnitaireVente;
-        this.sousTotal = sousTotal;
+        this.prixUnitaireVente = BigDecimal.valueOf(prixUnitaireVente);
+        this.sousTotal = BigDecimal.valueOf(sousTotal);
     }
 
-    /**
-     * @return l'identifiant unique de la ligne de vente
-     */
+    public LigneVente(int idLigneVente, int idVente, int idLot, int quantite,
+                      BigDecimal prixUnitaireVente, BigDecimal sousTotal) {
+        this.idLigneVente = idLigneVente;
+        this.idVente = idVente;
+        this.idLot = idLot;
+        this.quantite = quantite;
+        this.prixUnitaireVente = prixUnitaireVente != null ? prixUnitaireVente : BigDecimal.ZERO;
+        this.sousTotal = sousTotal != null ? sousTotal : BigDecimal.ZERO;
+    }
+
     public int getIdLigneVente() {
         return idLigneVente;
     }
 
-    /**
-     * @param idLigneVente l'identifiant unique à définir
-     */
     public void setIdLigneVente(int idLigneVente) {
         this.idLigneVente = idLigneVente;
     }
 
-    /**
-     * @return l'identifiant de la vente parente
-     */
     public int getIdVente() {
         return idVente;
     }
 
-    /**
-     * @param idVente l'identifiant de la vente à définir
-     */
     public void setIdVente(int idVente) {
         this.idVente = idVente;
     }
 
-    /**
-     * @return l'identifiant du lot
-     */
     public int getIdLot() {
         return idLot;
     }
 
-    /**
-     * @param idLot l'identifiant du lot à définir
-     */
     public void setIdLot(int idLot) {
         this.idLot = idLot;
     }
 
-    /**
-     * @return la quantité vendue
-     */
     public int getQuantite() {
         return quantite;
     }
 
-    /**
-     * @param quantite la quantité à définir
-     */
     public void setQuantite(int quantite) {
         this.quantite = quantite;
     }
 
-    /**
-     * @return le prix unitaire de vente (DH)
-     */
     public double getPrixUnitaireVente() {
-        return prixUnitaireVente;
+        return prixUnitaireVente != null ? prixUnitaireVente.doubleValue() : 0.0;
     }
 
-    /**
-     * @param prixUnitaireVente le prix unitaire de vente à définir (DH)
-     */
     public void setPrixUnitaireVente(double prixUnitaireVente) {
-        this.prixUnitaireVente = prixUnitaireVente;
+        this.prixUnitaireVente = BigDecimal.valueOf(prixUnitaireVente);
     }
 
-    /**
-     * @return le sous-total de la ligne (DH)
-     */
+    public BigDecimal getPrixUnitaireVenteBD() {
+        return prixUnitaireVente != null ? prixUnitaireVente : BigDecimal.ZERO;
+    }
+
+    public void setPrixUnitaireVente(BigDecimal prixUnitaireVente) {
+        this.prixUnitaireVente = prixUnitaireVente != null ? prixUnitaireVente : BigDecimal.ZERO;
+    }
+
     public double getSousTotal() {
-        return sousTotal;
+        return sousTotal != null ? sousTotal.doubleValue() : 0.0;
     }
 
-    /**
-     * @param sousTotal le sous-total à définir (DH)
-     */
     public void setSousTotal(double sousTotal) {
-        this.sousTotal = sousTotal;
+        this.sousTotal = BigDecimal.valueOf(sousTotal);
     }
 
-    /**
-     * @return le nom du médicament (transitoire)
-     */
+    public BigDecimal getSousTotalBD() {
+        return sousTotal != null ? sousTotal : BigDecimal.ZERO;
+    }
+
+    public void setSousTotal(BigDecimal sousTotal) {
+        this.sousTotal = sousTotal != null ? sousTotal : BigDecimal.ZERO;
+    }
+
     public String getNomMedicament() {
         return nomMedicament;
     }
 
-    /**
-     * @param nomMedicament le nom du médicament à définir
-     */
     public void setNomMedicament(String nomMedicament) {
         this.nomMedicament = nomMedicament;
     }
 
-    /**
-     * @return le numéro de lot (transitoire)
-     */
     public String getNumeroLot() {
         return numeroLot;
     }
 
-    /**
-     * @param numeroLot le numéro de lot à définir
-     */
     public void setNumeroLot(String numeroLot) {
         this.numeroLot = numeroLot;
+    }
+
+    public String getDosage() {
+        return dosage;
+    }
+
+    public void setDosage(String dosage) {
+        this.dosage = dosage;
     }
 
     /**
      * Recalcule le sous-total à partir de la quantité et du prix unitaire.
      */
     public void calculerSousTotal() {
-        this.sousTotal = this.quantite * this.prixUnitaireVente;
+        if (this.prixUnitaireVente != null) {
+            this.sousTotal = this.prixUnitaireVente.multiply(BigDecimal.valueOf(this.quantite))
+                    .setScale(2, RoundingMode.HALF_UP);
+        } else {
+            this.sousTotal = BigDecimal.ZERO;
+        }
     }
 
     @Override

@@ -24,7 +24,7 @@ public class StockLotPanel extends JPanel {
     }
 
     private void initUI() {
-        setLayout(new MigLayout("wrap, insets 15 20 15 20, gap 10", "[grow]", "[][grow]"));
+        setLayout(new MigLayout("fill, insets 20, hidemode 3", "[grow, fill, 0::]", "[]12[grow, fill]"));
 
         JPanel header = new JPanel(new MigLayout("insets 0, gap 10", "[][][][grow]", "[]"));
         header.setOpaque(false);
@@ -37,7 +37,7 @@ public class StockLotPanel extends JPanel {
         header.add(title);
         header.add(cbExpirationProche);
         header.add(cbExpires);
-        add(header, "growx");
+        add(header, "growx, wrap");
 
         styledTable = new StyledTable(new String[]{
             "ID", "Médicament", "N° Lot", "Date Expiration", "Qté Initiale", "Qté Restante", "Statut"
